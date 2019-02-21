@@ -18,7 +18,8 @@ git clone https://github.com/eouia/MMM-Volume
   module: "MMM-Volume",
   position: "top_left", // It is meaningless. but you should set.
   config: {
-    usePresetScript: "ALSA" // "OSX" or "ALSA" is supported by default.
+    usePresetScript: "ALSA", // "OSX" or "ALSA" is supported by default.
+    volumeOnStart: 50,
   }
 },
 ```
