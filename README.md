@@ -109,3 +109,7 @@ If volume is changed or `VOLUME_GET` is called, the current volume as result wil
 
 ## Styling
 See `MMM-Volume.css`
+
+
+## Notice
+Not fully tested on RPI. I'm waiting your bug report.
