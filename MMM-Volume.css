@@ -1,0 +1,39 @@
+#VOLUME_CONTAINER {
+  top: calc(50% - 20px);
+  left: calc(50% - 100px);
+  width:200px;
+  height:40px;
+  background-color:#333;
+  position:fixed;
+  visibility:visible;
+  opacity: 1;
+}
+
+#VOLUME_TEXT {
+  position:absolute;
+  width:200px;
+  height:40px;
+  top:0;
+  left:0;
+  color:#FFF;
+  text-align:center;
+  font-size:24px;
+  line-height:40px;
+  z-index:999;
+}
+
+#VOLUME_BAR {
+  position:absolute;
+  width:200px;
+  height:40px;
+  top:0;
+  left:0;
+  z-index:1000;
+  background-color:rgba(64,127,255, 0.5);
+}
+
+#VOLUME_CONTAINER.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 2s, opacity 2s linear;
+}
