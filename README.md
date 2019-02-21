@@ -1,8 +1,11 @@
 # MMM-Volume
 Volume controller for MagicMirror
 
+## Screenshot
+![Screenshot](https://raw.githubusercontent.com/eouia/MMM-Volume/master/mmm-volume.png)
+
 ## Install
-```
+```sh
 cd ~/MagicMirror/modules
 git clone https://github.com/eouia/MMM-Volume
 ```
@@ -96,10 +99,12 @@ If volume is changed or `VOLUME_GET` is called, the current volume as result wil
 
 
 
-
-
 ### By `MMM-TelegramBot`
 |command | description
 |--- |---
 |`/vol` | Getting Current Volume
 |`/vol NUMBER` | Setting Volume to `NUMBER`(0-100)
+
+
+## Styling
+See `MMM-Volume.css`
