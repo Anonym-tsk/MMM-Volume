@@ -36,7 +36,7 @@ Module.register("MMM-Volume", {
       },
       "ALSA" : {
         getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
-        setVolumeScript: `amixer sset 'PCM' #VOLUME#%`, //set 0~100
+        setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
       }
     },
 
