@@ -31,7 +31,7 @@ git clone https://github.com/eouia/MMM-Volume
   position: "top_left", // It is meaningless. but you should set.
   config: {
     usePresetScript: "ALSA",
-    // null or "OSX" or "ALSA", When set to `null`, `getVolumeScript` and `setVolumeScript` will be used directly. See the experts section.
+    // null or "OSX", "HIFIBERRY-DAC" or "ALSA", When set to `null`, `getVolumeScript` and `setVolumeScript` will be used directly. See the experts section.
 
     upDownScale: 5,
     // for VOLUME_UP or VOLUME_DOWN.
