@@ -14,7 +14,7 @@ Module.register("MMM-Volume", {
     // for RPI ALSA mixer
     //getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
     //setVolumeScript: ` amixer sset 'PCM' *VOLUME*%`, //set 0~100
-    
+	
     // for RPI ALSA mixer with HiFiBerry AMP2
     //getVolumeScript: 'amixer sget \'Digital\' | grep -E -o \'[[:digit:]]+%\' | head -n 1| sed \'s/%//g\'', // get 0~100
     //setVolumeScript: 'amixer sset -M \'Digital\' #VOLUME#%', // set 0~100
@@ -24,7 +24,7 @@ Module.register("MMM-Volume", {
     upDownScale: 5,
     volumeOnStart: 10,
     fadeDelay: 200,
-    
+
     volumeText: "Vol: #VOLUME#%",
 
     telegramMessages: {
@@ -35,15 +35,15 @@ Module.register("MMM-Volume", {
 
     // Usually You might not need to modify belows; Only for Experts.
     presetScript: {
-      "OSX" : {
-        getVolumeScript: `osascript -e 'output volume of (get volume settings)'`, //get 0~100
-        setVolumeScript: `osascript -e 'set volume output volume #VOLUME#'`, //set 0~100
+      "OSX": {
+        getVolumeScript: `osascript -e 'output volume of (get volume settings)'`, // get 0~100
+        setVolumeScript: `osascript -e 'set volume output volume #VOLUME#'` // set 0~100
       },
-      "ALSA" : {
-        getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
+      "ALSA": {
+        getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, // get 0~100
         setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
       },
-      "HIFIBERRY-DAC" : {
+      "HIFIBERRY-DAC": {
         getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
         setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
       }
@@ -53,7 +53,7 @@ Module.register("MMM-Volume", {
       VOLUME_GET : "VOLUME_GET",
       VOLUME_SET : "VOLUME_SET",
       VOLUME_UP : "VOLUME_UP",
-      VOLUME_DOWN: "VOLUME_DOWN",
+      VOLUME_DOWN : "VOLUME_DOWN",
       VOLUME_STORE : "VOLUME_STORE",
       VOLUME_RESTORE : "VOLUME_RESTORE",
       VOLUME_TOGGLE : "VOLUME_TOGGLE",
@@ -85,20 +85,18 @@ Module.register("MMM-Volume", {
         this.sendSocketNotification(noti, payload)
         break
       case this.config.notifications.VOLUME_UP:
-        if (typeof payload.upDownScale !== 'undefined'){
-          var curUpDownScale = payload.upDownScale
-        } else {
-          var curUpDownScale = this.config.upDownScale
+        var curUpDownScale = this.config.upDownScale
+        if (typeof payload.upDownScale !== 'undefined') {
+          curUpDownScale = payload.upDownScale
         }
         var vol = this.currentVolume + curUpDownScale
         if (vol > 100) vol = 100
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, vol)
         break
       case this.config.notifications.VOLUME_DOWN:
-        if (typeof payload.upDownScale !== 'undefined'){
-          var curUpDownScale = payload.upDownScale
-        } else {
-          var curUpDownScale = this.config.upDownScale
+        var curUpDownScale = this.config.upDownScale
+        if (typeof payload.upDownScale !== 'undefined') {
+          curUpDownScale = payload.upDownScale
         }
         var vol = this.currentVolume - curUpDownScale
         if (vol < 0) vol = 0
@@ -111,10 +109,11 @@ Module.register("MMM-Volume", {
         this.restoreVolume(payload)
         break
       case this.config.notifications.VOLUME_TOGGLE:
-        if(this.currentVolume === 0){
+        if (this.currentVolume === 0) {
           this.restoreVolume(payload)
         } else {
-          this.storeVolume(0)
+          payload.value = 0
+          this.storeVolume(payload)
         }
         break
     }
@@ -124,44 +123,58 @@ Module.register("MMM-Volume", {
     return new Promise(resolve => setTimeout(resolve, ms));
   },
 
-  storeVolume: function(value){
+  storeVolume: function (options){
     this.storedVolume = this.currentVolume
-    if (typeof value !== 'undefined') {
-      this.sendSocketNotification(this.config.notifications.VOLUME_SET, value)
+    if (typeof options !== 'undefined') {
+      if (Number.isInteger(options)) {
+        this.sendSocketNotification(this.config.notifications.VOLUME_SET, options)
+      } else {
+        if ((typeof options.faded !== 'undefined') && (options.faded === true)) {
+          var curUpDownScale = this.config.upDownScale
+          if (typeof options.upDownScale !== 'undefined') {
+            curUpDownScale = options.upDownScale
+          }
+          this.fadeVolume(options.value, curUpDownScale)
+        } else {
+          this.sendSocketNotification(this.config.notifications.VOLUME_SET, options.value)
+        }
+      }
     }
   },
 
   restoreVolume: async function(options){
     if (this.storedVolume !== null) {
-      if((typeof options.faded !== 'undefined') && (options.faded === true))
-      {
-        if (typeof options.upDownScale !== 'undefined'){
-          var curUpDownScale = options.upDownScale
-        } else {
-          var curUpDownScale = this.config.upDownScale
+      if((typeof options.faded !== 'undefined') && (options.faded === true)) {
+        var curUpDownScale = this.config.upDownScale
+        if (typeof options.upDownScale !== 'undefined') {
+          curUpDownScale = options.upDownScale
         }
-
-        if(this.currentVolume < this.storedVolume){
-          while (this.currentVolume < this.storedVolume){
-            var newVolume = this.currentVolume + curUpDownScale
-            if(newVolume > this.storedVolume){
-              newVolume = this.storedVolume
-            }
-            this.sendSocketNotification(this.config.notifications.VOLUME_SET, newVolume)
-            await this.sleep(this.config.fadeDelay);
-          }
-        } else {
-          while (this.currentVolume > this.storedVolume){
-            var newVolume = this.currentVolume - curUpDownScale
-            if(newVolume < this.storedVolume){
-              newVolume = this.storedVolume
-            }
-            this.sendSocketNotification(this.config.notifications.VOLUME_SET, newVolume)
-            await this.sleep(this.config.fadeDelay);
-          }
-        }
+        this.fadeVolume(this.storedVolume, curUpDownScale)
       } else {
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, this.storedVolume)
+      }
+    }
+  },
+
+  fadeVolume: async function (newVolume, scale) {
+    var newTempVolume
+    if (this.currentVolume < newVolume) {
+      while (this.currentVolume < newVolume) {
+        newTempVolume = this.currentVolume + scale
+        if (newTempVolume > newVolume) {
+          newTempVolume = newVolume
+        }
+        this.sendSocketNotification(this.config.notifications.VOLUME_SET, newTempVolume)
+        await this.sleep(this.config.fadeDelay)
+      }
+    } else {
+      while (this.currentVolume > newVolume) {
+        newTempVolume = this.currentVolume - scale
+        if (newTempVolume < newVolume) {
+          newTempVolume = newVolume
+        }
+        this.sendSocketNotification(this.config.notifications.VOLUME_SET, newTempVolume)
+        await this.sleep(this.config.fadeDelay)
       }
     }
   },
