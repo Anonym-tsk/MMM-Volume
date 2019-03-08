@@ -1,0 +1,21 @@
+{
+  "name": "MMM-Volume",
+  "version": "0.0.1",
+  "description": "",
+  "main": "MMM-Volume.js",
+  "devDependencies": {},
+  "scripts": {},
+  "dependencies": {
+    "child_process": "^1.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:eouia/MMM-Volume.git"
+  },
+  "author": "eouia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eouia/MMM-Volume/issues"
+  },
+  "homepage": "https://github.com/eouia/MMM-Volume/#readme"
+}

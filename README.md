@@ -45,6 +45,9 @@ git clone https://github.com/eouia/MMM-Volume
     hideDelay: 2000,
     // After X milliseconds from showing, volume gain-meter will be disappeared.
 
+    fadeDelay: 200,
+    // If the volume is restored with a fade effect this time in milliseconds will be waited between to scales
+
     telegramMessages: {
       CUR_VOLUME : "Current Volume is *#VOLUME#*.",
       SET_VOLUME : "Setting Volume to *#VOLUME#*",
@@ -65,6 +68,10 @@ git clone https://github.com/eouia/MMM-Volume
       "ALSA" : {
         getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
         setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
+      },
+      "HIFIBERRY-DAC" : {
+        getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
       }
     },
 
@@ -75,6 +82,7 @@ git clone https://github.com/eouia/MMM-Volume
       VOLUME_DOWN: "VOLUME_DOWN",
       VOLUME_STORE : "VOLUME_STORE",
       VOLUME_RESTORE : "VOLUME_RESTORE",
+      VOLUME_TOGGLE : "VOLUME_TOGGLE",
       CURRENT_VOLUME : "CURRENT_VOLUME",
     },
     // You can redefine notifications if you need.
@@ -91,10 +99,10 @@ git clone https://github.com/eouia/MMM-Volume
 |---|---|---|
 |VOLUME_GET | - | Getting current volume
 |VOLUME_SET | 0 - 100 | Setting Volume to `number`. 0 is mute and 100 is maximum
-|VOLUME_UP | - | Volume up by `upDownScale`
-|VOLUME_DOWN | - | Volume down by `upDownScale`
+|VOLUME_UP | upDownScale=Number | Volume up by `upDownScale`
+|VOLUME_DOWN | upDownScale=NUMBER | Volume down by `upDownScale`
 |VOLUME_STORE | `null` or `0-100` | Storing current volume and setting the volume to `number`.<br/> If payload be `null`, volume will not be changed. (just stored)
-|VOLUME_RESTORE | - | Setting volume with stored previously
+|VOLUME_RESTORE | faded=true or false; upDownScale=NUMBER | Setting volume with stored previously
 
 If volume is changed or `VOLUME_GET` is called, the current volume as result will be notified by `CURRENT_VOLUME` notification with `payload=0-100`.
 

@@ -14,12 +14,17 @@ Module.register("MMM-Volume", {
     // for RPI ALSA mixer
     //getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
     //setVolumeScript: ` amixer sset 'PCM' *VOLUME*%`, //set 0~100
+    
+    // for RPI ALSA mixer with HiFiBerry AMP2
+    //getVolumeScript: 'amixer sget \'Digital\' | grep -E -o \'[[:digit:]]+%\' | head -n 1| sed \'s/%//g\'', // get 0~100
+    //setVolumeScript: 'amixer sset -M \'Digital\' #VOLUME#%', // set 0~100
 
     usePresetScript: "ALSA", // null or "OSX" or "ALSA", When set to `null`, `getVolumeScript` and `setVolumeScript` will be used directly.
     hideDelay: 2000, // 0 for showing always. over 0, After X millisec from showing, will be disappeared.
     upDownScale: 5,
     volumeOnStart: 10,
-
+    fadeDelay: 200,
+    
     volumeText: "Vol: #VOLUME#%",
 
     telegramMessages: {
@@ -37,6 +42,10 @@ Module.register("MMM-Volume", {
       "ALSA" : {
         getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
         setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
+      },
+      "HIFIBERRY-DAC" : {
+        getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
       }
     },
 
@@ -47,6 +56,7 @@ Module.register("MMM-Volume", {
       VOLUME_DOWN: "VOLUME_DOWN",
       VOLUME_STORE : "VOLUME_STORE",
       VOLUME_RESTORE : "VOLUME_RESTORE",
+      VOLUME_TOGGLE : "VOLUME_TOGGLE",
       CURRENT_VOLUME : "CURRENT_VOLUME",
     },
   },
@@ -66,7 +76,7 @@ Module.register("MMM-Volume", {
     this.sendSocketNotification("CONFIG", this.config)
   },
 
-  notificationReceived: function(noti, payload=null, sender) {
+  notificationReceived: function(noti, payload=null) {
     switch(noti) {
       case this.config.notifications.VOLUME_GET:
         this.sendSocketNotification(noti, payload)
@@ -75,26 +85,84 @@ Module.register("MMM-Volume", {
         this.sendSocketNotification(noti, payload)
         break
       case this.config.notifications.VOLUME_UP:
-        var vol = this.currentVolume + this.config.upDownScale
+        if (typeof payload.upDownScale !== 'undefined'){
+          var curUpDownScale = payload.upDownScale
+        } else {
+          var curUpDownScale = this.config.upDownScale
+        }
+        var vol = this.currentVolume + curUpDownScale
         if (vol > 100) vol = 100
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, vol)
         break
       case this.config.notifications.VOLUME_DOWN:
-        var vol = this.currentVolume - this.config.upDownScale
+        if (typeof payload.upDownScale !== 'undefined'){
+          var curUpDownScale = payload.upDownScale
+        } else {
+          var curUpDownScale = this.config.upDownScale
+        }
+        var vol = this.currentVolume - curUpDownScale
         if (vol < 0) vol = 0
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, vol)
         break
       case this.config.notifications.VOLUME_STORE:
-        this.storedVolume = this.currentVolume
-        if (payload) {
-          this.sendSocketNotification(this.config.notifications.VOLUME_SET, payload)
-        }
+        this.storeVolume(payload)
         break
       case this.config.notifications.VOLUME_RESTORE:
-        if (this.storedVolume !== null) {
-          this.sendSocketNotification(this.config.notifications.VOLUME_SET, this.storedVolume)
+        this.restoreVolume(payload)
+        break
+      case this.config.notifications.VOLUME_TOGGLE:
+        if(this.currentVolume === 0){
+          this.restoreVolume(payload)
+        } else {
+          this.storeVolume(0)
         }
         break
+    }
+  },
+
+  sleep: function (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+
+  storeVolume: function(value){
+    this.storedVolume = this.currentVolume
+    if (typeof value !== 'undefined') {
+      this.sendSocketNotification(this.config.notifications.VOLUME_SET, value)
+    }
+  },
+
+  restoreVolume: async function(options){
+    if (this.storedVolume !== null) {
+      if((typeof options.faded !== 'undefined') && (options.faded === true))
+      {
+        if (typeof options.upDownScale !== 'undefined'){
+          var curUpDownScale = options.upDownScale
+        } else {
+          var curUpDownScale = this.config.upDownScale
+        }
+
+        if(this.currentVolume < this.storedVolume){
+          while (this.currentVolume < this.storedVolume){
+            var newVolume = this.currentVolume + curUpDownScale
+            if(newVolume > this.storedVolume){
+              newVolume = this.storedVolume
+            }
+            this.sendSocketNotification(this.config.notifications.VOLUME_SET, newVolume)
+            await this.sleep(this.config.fadeDelay);
+          }
+        } else {
+          while (this.currentVolume > this.storedVolume){
+            var newVolume = this.currentVolume - curUpDownScale
+            if(newVolume < this.storedVolume){
+              newVolume = this.storedVolume
+            }
+            this.sendSocketNotification(this.config.notifications.VOLUME_SET, newVolume)
+            await this.sleep(this.config.fadeDelay);
+          }
+        }
+      } else {
+        this.sendSocketNotification(this.config.notifications.VOLUME_SET, this.storedVolume)
+      }
     }
   },
 
