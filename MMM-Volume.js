@@ -24,7 +24,7 @@ Module.register("MMM-Volume", {
     upDownScale: 5,
     volumeOnStart: 10,
     fadeDelay: 200,
-
+    
     volumeText: "Vol: #VOLUME#%",
 
     telegramMessages: {
@@ -42,6 +42,10 @@ Module.register("MMM-Volume", {
       "ALSA" : {
         getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
         setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
+      },
+      "HIFIBERRY-DAC" : {
+        getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
       }
     },
 
