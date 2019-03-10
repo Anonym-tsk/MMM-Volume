@@ -125,7 +125,7 @@ Module.register("MMM-Volume", {
 
   storeVolume: function (options){
     this.storedVolume = this.currentVolume
-    if ((typeof options !== 'undefined') && (options !== null){
+    if ((typeof options !== 'undefined') && (options !== null)){
       if (Number.isInteger(options)) {
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, options)
       } else {
