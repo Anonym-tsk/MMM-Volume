@@ -125,7 +125,7 @@ Module.register("MMM-Volume", {
 
   storeVolume: function (options){
     this.storedVolume = this.currentVolume
-    if (typeof options !== 'undefined') {
+    if ((typeof options !== 'undefined') && (options !== null){
       if (Number.isInteger(options)) {
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, options)
       } else {
@@ -144,7 +144,7 @@ Module.register("MMM-Volume", {
 
   restoreVolume: async function(options){
     if (this.storedVolume !== null) {
-      if((typeof options.faded !== 'undefined') && (options.faded === true)) {
+      if((options !== null) && (typeof options.faded !== 'undefined') && (options.faded === true)) {
         var curUpDownScale = this.config.upDownScale
         if (typeof options.upDownScale !== 'undefined') {
           curUpDownScale = options.upDownScale
