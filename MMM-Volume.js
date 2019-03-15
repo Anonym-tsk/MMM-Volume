@@ -40,13 +40,18 @@ Module.register("MMM-Volume", {
         setVolumeScript: `osascript -e 'set volume output volume #VOLUME#'` // set 0~100
       },
       "ALSA": {
-        getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, // get 0~100
+       getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk '{gsub ( /%/, "" ) ; print}'`, // get 0~100
         setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
       },
       "HIFIBERRY-DAC": {
         getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
         setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
-      }
+      },
+ 	"PULSE": {
+        getVolumeScript: `amixer get Master  | awk -F"[][]" '{print ""$2""}' | grep %  | awk 'NR==1{print $1}' | awk '{gsub(/%/,"") ; print}'`, // get 0~100
+        setVolumeScript: `amixer set Master #VOLUME#% -q`, // set 0~100
+      },
+
     },
 
     notifications: {
