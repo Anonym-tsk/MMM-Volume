@@ -60,20 +60,26 @@ git clone https://github.com/eouia/MMM-Volume
     setVolumeScript: ``, //set 0~100
     // volume control scripts for Other systems. If you set null to `usePresetScript`, these fields will be used instead.
 
-    presetScript: {
-      "OSX" : {
-        getVolumeScript: `osascript -e 'output volume of (get volume settings)'`, //get 0~100
-        setVolumeScript: `osascript -e 'set volume output volume #VOLUME#'`, //set 0~100
+     presetScript: {
+      "OSX": {
+        getVolumeScript: `osascript -e 'output volume of (get volume settings)'`, // get 0~100
+        setVolumeScript: `osascript -e 'set volume output volume #VOLUME#'` // set 0~100
       },
-      "ALSA" : {
-        getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
+      "ALSA": {
+       getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk '{gsub ( /%/, "" ) ; print}'`, // get 0~100
         setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
       },
-      "HIFIBERRY-DAC" : {
+      "HIFIBERRY-DAC": {
         getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
         setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
-      }
+      },
+ 	"PULSE": {
+        getVolumeScript: `amixer get Master  | awk -F"[][]" '{print ""$2""}' | grep %  | awk 'NR==1{print $1}' | awk '{gsub(/%/,"") ; print}'`, // get 0~100
+        setVolumeScript: `amixer set Master #VOLUME#% -q`, // set 0~100
+      },
+
     },
+
 
     notifications: {
       VOLUME_GET : "VOLUME_GET",
