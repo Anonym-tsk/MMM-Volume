@@ -105,10 +105,10 @@ git clone https://github.com/eouia/MMM-Volume
 |---|---|---|
 |VOLUME_GET | - | Getting current volume
 |VOLUME_SET | 0 - 100 | Setting Volume to `number`. 0 is mute and 100 is maximum
-|VOLUME_UP | upDownScale=Number | Volume up by `upDownScale`
-|VOLUME_DOWN | upDownScale=NUMBER | Volume down by `upDownScale`
+|VOLUME_UP | {upDownScale: NUMBER} or `null` for default value | Volume up by `upDownScale`
+|VOLUME_DOWN | {upDownScale: NUMBER} or `null` for default value| Volume down by `upDownScale`
 |VOLUME_STORE | `null` or `0-100` | Storing current volume and setting the volume to `number`.<br/> If payload be `null`, volume will not be changed. (just stored)
-|VOLUME_RESTORE | faded=true or false; upDownScale=NUMBER | Setting volume with stored previously
+|VOLUME_RESTORE | {faded:true or false; upDownScale:NUMBER} | Setting volume with stored previously
 
 If volume is changed or `VOLUME_GET` is called, the current volume as result will be notified by `CURRENT_VOLUME` notification with `payload=0-100`.
 
