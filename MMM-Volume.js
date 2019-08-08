@@ -14,7 +14,7 @@ Module.register("MMM-Volume", {
     // for RPI ALSA mixer
     //getVolumeScript: `amixer sget 'PCM' | awk -F"[][]" '{print ""$2""}' | grep %  | awk ' { gsub ( /[%]/, "" )`, //get 0~100
     //setVolumeScript: ` amixer sset 'PCM' *VOLUME*%`, //set 0~100
-	
+
     // for RPI ALSA mixer with HiFiBerry AMP2
     //getVolumeScript: 'amixer sget \'Digital\' | grep -E -o \'[[:digit:]]+%\' | head -n 1| sed \'s/%//g\'', // get 0~100
     //setVolumeScript: 'amixer sset -M \'Digital\' #VOLUME#%', // set 0~100
@@ -82,6 +82,8 @@ Module.register("MMM-Volume", {
   },
 
   notificationReceived: function(noti, payload=null) {
+    var curUpDownScale = (payload && payload.upDownScale) ? payload.upDownScale : this.config.upDownScale
+
     switch(noti) {
       case this.config.notifications.VOLUME_GET:
         this.sendSocketNotification(noti, payload)
@@ -90,19 +92,11 @@ Module.register("MMM-Volume", {
         this.sendSocketNotification(noti, payload)
         break
       case this.config.notifications.VOLUME_UP:
-        var curUpDownScale = this.config.upDownScale
-        if (typeof payload.upDownScale !== 'undefined') {
-          curUpDownScale = payload.upDownScale
-        }
         var vol = this.currentVolume + curUpDownScale
         if (vol > 100) vol = 100
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, vol)
         break
       case this.config.notifications.VOLUME_DOWN:
-        var curUpDownScale = this.config.upDownScale
-        if (typeof payload.upDownScale !== 'undefined') {
-          curUpDownScale = payload.upDownScale
-        }
         var vol = this.currentVolume - curUpDownScale
         if (vol < 0) vol = 0
         this.sendSocketNotification(this.config.notifications.VOLUME_SET, vol)
