@@ -31,7 +31,8 @@ git clone https://github.com/eouia/MMM-Volume
   position: "top_left", // It is meaningless. but you should set.
   config: {
     usePresetScript: "ALSA",
-    // null or "OSX", "HIFIBERRY-DAC" or "ALSA", When set to `null`, `getVolumeScript` and `setVolumeScript` will be used directly. See the experts section.
+    // When set to `null`, `getVolumeScript` and `setVolumeScript` will be used directly. See the experts section.
+    // For available presetScript, See `presetScript{}`
 
     upDownScale: 5,
     // for VOLUME_UP or VOLUME_DOWN.
@@ -73,11 +74,18 @@ git clone https://github.com/eouia/MMM-Volume
         getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
         setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
       },
- 	"PULSE": {
+      "PULSE": {
         getVolumeScript: `amixer get Master  | awk -F"[][]" '{print ""$2""}' | grep %  | awk 'NR==1{print $1}' | awk '{gsub(/%/,"") ; print}'`, // get 0~100
         setVolumeScript: `amixer set Master #VOLUME#% -q`, // set 0~100
       },
-
+      "RESPEAKER_SPEAKER": {
+        getVolumeScript: `amixer sget Speaker | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        setVolumeScript: `amixer sset Speaker #VOLUME#%`, // set 0~100
+      },
+      "RESPEAKER_PLAYBACK": {
+        getVolumeScript: `amixer sget Playback | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        setVolumeScript: `amixer sset Playback #VOLUME#%`, // set 0~100
+      },
     },
 
 
