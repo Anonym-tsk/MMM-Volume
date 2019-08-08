@@ -47,7 +47,7 @@ Module.register("MMM-Volume", {
         getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
         setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
       },
- 	    "PULSE": {
+      "PULSE": {
         getVolumeScript: `amixer get Master  | awk -F"[][]" '{print ""$2""}' | grep %  | awk 'NR==1{print $1}' | awk '{gsub(/%/,"") ; print}'`, // get 0~100
         setVolumeScript: `amixer set Master #VOLUME#% -q`, // set 0~100
       },
