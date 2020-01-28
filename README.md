@@ -79,12 +79,12 @@ git clone https://github.com/eouia/MMM-Volume
         setVolumeScript: `amixer set Master #VOLUME#% -q`, // set 0~100
       },
       "RESPEAKER_SPEAKER": {
-        getVolumeScript: `amixer sget Speaker | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
-        setVolumeScript: `amixer sset Speaker #VOLUME#%`, // set 0~100
+        getVolumeScript: `amixer -M sget Speaker | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        setVolumeScript: `amixer -M sset Speaker #VOLUME#%`, // set 0~100
       },
       "RESPEAKER_PLAYBACK": {
-        getVolumeScript: `amixer sget Playback | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
-        setVolumeScript: `amixer sset Playback #VOLUME#%`, // set 0~100
+        getVolumeScript: `amixer -M sget Playback | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        setVolumeScript: `amixer -M sset Playback #VOLUME#%`, // set 0~100
       },
     },
 
