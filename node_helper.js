@@ -21,7 +21,7 @@ module.exports = NodeHelper.create({
         this.setVolume(this.config.volumeOnStart, (volume)=>{
           this.sendSocketNotification("VOLUME_RESULT", volume)
         })
-      }
+      } else this.socketNotificationReceived(this.config.notifications.VOLUME_GET)
     }
 
     switch (notification) {
