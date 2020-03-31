@@ -44,7 +44,7 @@ Module.register("MMM-Volume", {
         setVolumeScript: `amixer sset -M 'PCM' #VOLUME#%`, //set 0~100
       },
       "HIFIBERRY-DAC": {
-        getVolumeScript: `amixer sget 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
+        getVolumeScript: `amixer sget -M 'Digital' | grep -E -o '[[:digit:]]+%' | head -n 1| sed 's/%//g'`, // get 0~100
         setVolumeScript: `amixer sset -M 'Digital' #VOLUME#%`, // set 0~100
       },
       "PULSE": {
